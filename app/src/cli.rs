@@ -135,6 +135,7 @@ pub enum GuiCommand {
 }
 
 /// What instruction was received through the CLI
+#[derive(Clone)]
 pub enum OutputType {
     Profile(Profile),
     Custom(CustomEffect),
@@ -173,12 +174,12 @@ pub fn try_cli() -> Result<GuiCommand, CliError> {
             match output {
                 OutputType::Profile(profile) => {
                     effect_manager.set_profile(profile);
-                    effect_manager.join_and_exit();
+                    effect_manager.shutdown();
                     Ok(GuiCommand::Exit)
                 }
                 OutputType::Custom(effect) => {
                     effect_manager.custom_effect(effect);
-                    effect_manager.join_and_exit();
+                    effect_manager.shutdown();
                     Ok(GuiCommand::Exit)
                 }
                 OutputType::Exit => Ok(GuiCommand::Exit),
