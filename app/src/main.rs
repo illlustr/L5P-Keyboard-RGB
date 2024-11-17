@@ -12,17 +12,14 @@ mod profile;
 mod tray;
 mod util;
 
-use std::{
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
-    time::Duration,
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
 };
 
 use cli::{GuiCommand, OutputType};
 use color_eyre::{eyre::eyre, Result};
-use eframe::{egui::IconData, epaint::Vec2, App};
+use eframe::{egui::IconData, epaint::Vec2};
 use gui::App;
 
 const APP_ICON: &'static [u8; 14987] = include_bytes!("../res/trayIcon.ico");
@@ -123,22 +120,9 @@ fn start_ui(output_type: OutputType, hide_window: bool) {
         });
     }
 
-    if has_tray.load(Ordering::SeqCst) {
-        while has_tray.load(Ordering::SeqCst) {
-            while !visible.load(Ordering::SeqCst) {
-                std::thread::sleep(Duration::from_millis(100));
-            }
-            if visible.load(Ordering::SeqCst) {
-                let app = App::new(output_type.clone(), has_tray.clone(), visible.clone());
+    let app = App::new(output_type, has_tray.clone(), visible.clone());
 
-                eframe::run_native("Legion RGB", native_options.clone(), Box::new(move |cc| Ok(Box::new(app.init(cc))))).unwrap();
-            }
-        }
-    } else {
-        let app = App::new(output_type, has_tray.clone(), visible.clone());
-
-        eframe::run_native("Legion RGB", native_options, Box::new(move |cc| Ok(Box::new(app.init(cc))))).unwrap();
-    }
+    eframe::run_native("Legion RGB", native_options, Box::new(move |cc| Ok(Box::new(app.init(cc))))).unwrap();
 }
 
 #[must_use]

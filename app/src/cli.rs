@@ -151,7 +151,12 @@ pub fn try_cli() -> Result<GuiCommand, CliError> {
     let output = parse_cli()?;
 
     match output {
-        CliOutput::Gui { hide_window, output } => Ok(GuiCommand::Start { hide_window, output }),
+        CliOutput::Gui { hide_window, output } => {
+            if hide_window {
+                println!("Window hiding is currently not supported. See https://github.com/4JX/L5P-Keyboard-RGB/issues/181");
+            }
+            Ok(GuiCommand::Start { hide_window, output })
+        }
         CliOutput::Cli(output) => {
             let manager_result = effects::EffectManager::new(effects::OperationMode::Cli);
 

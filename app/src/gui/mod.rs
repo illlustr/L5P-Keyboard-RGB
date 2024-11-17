@@ -15,6 +15,7 @@ use eframe::{
     CreationContext,
 };
 
+use egui_notify::Toasts;
 use strum::IntoEnumIterator;
 use tray_icon::menu::MenuEvent;
 
@@ -53,6 +54,7 @@ pub struct App {
     effect_options: EffectOptions,
     global_rgb: [u8; 3],
     theme: Theme,
+    toasts: Toasts,
 }
 
 pub enum GuiMessage {
@@ -107,6 +109,7 @@ impl App {
             effect_options: EffectOptions::default(),
             global_rgb: [0; 3],
             theme: Theme::default(),
+            toasts: Toasts::default(),
         };
 
         // Update the state according to the option chosen by the user
@@ -183,6 +186,17 @@ impl eframe::App for App {
             }
         }
 
+        // Show active toast messages
+        self.toasts.show(ctx);
+
+        // TODO: Remove when upstream fixes window hiding
+        if !self.visible.load(Ordering::SeqCst) {
+            self.visible.store(true, Ordering::SeqCst);
+            self.toasts
+                .warning("Window hiding is currently not supported.\nSee https://github.com/4JX/L5P-Keyboard-RGB/issues/181")
+                .set_duration(None);
+        }
+
         if self.instance_not_unique && modals::unique_instance(ctx) {
             self.exit_app();
         };
@@ -192,10 +206,9 @@ impl eframe::App for App {
             self.exit_app();
         };
 
-        // frame.set_visible(!self.hide_window);
-
         TopBottomPanel::top("top-panel").show(ctx, |ui| {
-            self.menu_bar.show(ctx, ui, &mut self.settings.current_profile, &mut self.custom_effect, &mut self.profile_changed);
+            self.menu_bar
+                .show(ctx, ui, &mut self.settings.current_profile, &mut self.custom_effect, &mut self.profile_changed, &mut self.toasts);
         });
 
         CentralPanel::default()

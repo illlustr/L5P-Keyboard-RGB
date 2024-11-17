@@ -9,6 +9,7 @@ pub const SHOW_ID: &str = "tray-show";
 pub const QUIT_ID: &str = "tray-quit";
 
 struct TrayMenuItems {
+    #[allow(dead_code)]
     show: MenuItem,
     quit: MenuItem,
 }
@@ -24,9 +25,10 @@ impl TrayMenuItems {
 
 fn build_tray_menu(items: &TrayMenuItems, has_gui: bool) -> Menu {
     let menu = Menu::new();
-    if has_gui {
-        menu.append_items(&[&items.show]).unwrap();
-    }
+    // TODO: Wait for upstream fix
+    // if has_gui {
+    //     menu.append_items(&[&items.show]).unwrap();
+    // }
     menu.append_items(&[&items.quit]).unwrap();
     menu
 }
